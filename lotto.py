@@ -1,9 +1,16 @@
 import random as rd
+from django.http import HttpResponse
+import django
+
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 import csv
 import pandas as pd
 import os
+import io
 import tensorflow as tf
 from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt; plt.rcdefaults()
 import time
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '24'
 
@@ -19,8 +26,6 @@ def max_min_num(list):
 
 
 if __name__ == '__main__':
-    start = time.time()
-    print(start)
     f = open('lotto.csv', 'r', encoding='utf-8')
     rdr = csv.reader(f)
     # 당첨 숫자 리스트 합치기
@@ -42,6 +47,8 @@ if __name__ == '__main__':
     # 1~45 당첨숫자의 평균값(보너스포함)
     avg_num = []
     avg_pct = []
+    fig = Figure()
+    canvas = FigureCanvas(fig)
     for j in range(1, 46):
         cnt = 0
         for num_cnt in all_num:
@@ -60,7 +67,7 @@ if __name__ == '__main__':
     chk_num_cnt = 0
     chk_round_cnt = []
     Dict_prt = []
-    for l in range(1, 46):
+    for l in range(1, 10):
         round_cnt = 0
         chk_round = []
         chk_round.append(l)
@@ -121,8 +128,13 @@ if __name__ == '__main__':
     plt.axis([18, 22, 800, 900])
     plt.xlabel('샘플횟수')
     plt.ylabel('당첨회차')
-    plt.show()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='jpg')
+    plt.close(fig)
+    # plt.show()
+    # response= HttpResponse(buf.getvalue(), content_type='image/png')
+    response = HttpResponse(content_type='image/jpg')
+    canvas.print_jpg(response)
     f.close()
-    end = time.time()
-    print(start, end)
+
 #123123
